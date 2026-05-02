@@ -2,7 +2,7 @@
 
 ## 📌 Overview
 
-This project implements a **Quantum-Inspired Fractal Image Compression system** that compares classical similarity measures with a **quantum kernel approach** using a swap test circuit.
+This project implements a **Quantum Fractal Image Compression system** that compares classical similarity measures with a **quantum kernel approach** using a swap test circuit.
 
 The goal is to explore how quantum computing techniques can improve similarity detection in fractal compression by mapping image data into a high-dimensional Hilbert space.
 
@@ -142,8 +142,8 @@ The image is reconstructed using:
 
 ## 📁 Results Folder
 
-* `output_comparison.png` → visual comparison
-* `metrics.txt` → numerical results
+* `Figure_1.png` → visual comparison on Quantum simulator
+* `Figure_2_w_qh.png` → visual comparison on Quantum hardware
 
 ---
 
