@@ -1,0 +1,5 @@
+=== Results ===
+Classical MSE: 0.202044
+Classical PSNR: 6.95
+Quantum MSE: 0.026802
+Quantum PSNR: 15.72

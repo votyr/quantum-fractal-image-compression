@@ -4,6 +4,7 @@ from qiskit_aer import AerSimulator
 from tqdm import tqdm
 from utils import transform_block
 from qiskit.circuit.library import StatePreparation
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 simulator = AerSimulator()
 
@@ -57,7 +58,7 @@ def swap_test(vec1, vec2, use_hardware=False):
 
     # Simulator
     else:
-        compiled = transpile(qc, simulator)
+        compiled = transpile(qc, simulator, optimization_level=0)
         result = simulator.run(compiled, shots=256).result()
         counts = result.get_counts()
         prob_0 = counts.get('0', 0) / 256
@@ -76,10 +77,10 @@ def quantum_similarity(a, b, use_hardware=False):
     return swap_test(a, b, use_hardware)
 
 # Main matching (SIMULATOR ONLY)
-def find_best_matches_quantum(range_blocks, domain_blocks):
+def find_best_matches_quantum(range_blocks, domain_blocks, use_hardware=False):
     matches = []
 
-    for r in tqdm(range_blocks, desc="Quantum Processing"):
+    for idx, r in enumerate(tqdm(range_blocks, desc="Quantum Processing")):
         best_block = None
         best_score = -1
 
@@ -87,7 +88,9 @@ def find_best_matches_quantum(range_blocks, domain_blocks):
             transformed = transform_block(d)
 
             for t in transformed:
-                score = quantum_similarity(r, t, use_hardware=False)
+                # Only use hardware for first block (demo)
+                use_hw = use_hardware and idx == 0
+                score = quantum_similarity(r, t, use_hardware=use_hw)
 
                 if score > best_score:
                     best_score = score

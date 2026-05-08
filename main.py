@@ -1,3 +1,5 @@
+USE_HARDWARE = False
+
 from utils import load_image, split_range_domain
 from classical import find_best_matches
 from quantum_kernel import find_best_matches_quantum
@@ -17,7 +19,7 @@ def psnr(a, b):
     return 20 * np.log10(1.0 / np.sqrt(m))
 
 # Load image
-img = load_image("images/test1.png", size=(16,16))
+img = load_image("images/test4.jpeg", size=(32,32))
 
 # Split
 range_blocks, domain_blocks = split_range_domain(img)
@@ -27,7 +29,11 @@ matches_classical = find_best_matches(range_blocks, domain_blocks)
 img_classical = merge_blocks(reconstruct(matches_classical), img.shape)
 
 # Quantum
-matches_quantum = find_best_matches_quantum(range_blocks, domain_blocks)
+matches_quantum = find_best_matches_quantum(
+    range_blocks,
+    domain_blocks,
+    use_hardware=USE_HARDWARE
+)
 img_quantum = merge_blocks(reconstruct(matches_quantum), img.shape)
 
 # Metrics
@@ -36,6 +42,9 @@ psnr_c = psnr(img, img_classical)
 
 mse_q = mse(img, img_quantum)
 psnr_q = psnr(img, img_quantum)
+
+import os
+os.makedirs("results", exist_ok=True)
 
 # Plot
 plt.figure(figsize=(12,5))
@@ -52,19 +61,29 @@ plt.subplot(1,3,3)
 plt.title(f"Quantum\nPSNR: {psnr_q:.2f}")
 plt.imshow(img_quantum, cmap='gray')
 
+output_path = "results/output_comparison.png"
+plt.savefig(output_path)
+print(f"Saved image to {output_path}")
+
 plt.show()
 
-print("=== Metrics ===")
-print(f"Classical -> MSE: {mse_c:.6f}, PSNR: {psnr_c:.2f}")
-print(f"Quantum   -> MSE: {mse_q:.6f}, PSNR: {psnr_q:.2f}")
+with open("results/metrics.txt", "w") as f:
+    f.write("=== Results ===\n")
+    f.write(f"Classical MSE: {mse_c:.6f}\n")
+    f.write(f"Classical PSNR: {psnr_c:.2f}\n")
+    f.write(f"Quantum MSE: {mse_q:.6f}\n")
+    f.write(f"Quantum PSNR: {psnr_q:.2f}\n")
 
-print("\n=== IBM Hardware Test ===")
+print("Saved metrics to results/metrics.txt")
 
-a = range_blocks[0]
-b = domain_blocks[0]
+if USE_HARDWARE:
+    print("\n=== IBM Hardware Test ===")
 
-sim_result = quantum_similarity(a, b, use_hardware=False)
-print(f"Simulator similarity: {sim_result:.4f}")
+    a = range_blocks[0][:4]
+    b = domain_blocks[0][:4]
 
-hw_result = quantum_similarity(a, b, use_hardware=True)
-print(f"Hardware similarity: {hw_result:.4f}")
+    sim = quantum_similarity(a, b, use_hardware=False)
+    print(f"Simulator similarity: {sim:.4f}")
+
+    hw = quantum_similarity(a, b, use_hardware=True)
+    print(f"Hardware similarity: {hw:.4f}")
